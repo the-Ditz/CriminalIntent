@@ -1,5 +1,6 @@
 package com.tutorial.bnr.ditzlern.criminalintent
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
@@ -31,12 +32,23 @@ class CrimeListFragment : Fragment() {
 
     }
 
+    override fun onResume() {
+        super.onResume()
+        updateUI()
+    }
+
     private fun updateUI() {
         val crimeLab = CrimeLab.get()
         val crimes = crimeLab.getCrimes()
 
-        adapter = CrimeAdapter(crimes)
-        crimeRecyclerView.adapter = adapter
+
+        adapter?.let {
+            it.crimes = crimes
+            it.notifyDataSetChanged()
+        } ?: run {
+            adapter = CrimeAdapter(crimes)
+            crimeRecyclerView.adapter = adapter
+        }
     }
 
     private inner class CrimeHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
@@ -67,7 +79,8 @@ class CrimeListFragment : Fragment() {
         }
 
         override fun onClick(p0: View?) {
-            Toast.makeText(context, "${crime.title} clicked!", Toast.LENGTH_SHORT)
+            val intent = CrimeActivity.newIntent(requireContext(), crime.id)
+            startActivity(intent)
         }
     }
 

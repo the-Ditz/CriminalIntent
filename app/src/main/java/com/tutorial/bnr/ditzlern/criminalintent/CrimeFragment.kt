@@ -12,6 +12,7 @@ import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
 import kotlinx.android.synthetic.main.fragment_crime.*
+import java.util.*
 
 class CrimeFragment : Fragment() {
 
@@ -22,7 +23,8 @@ class CrimeFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        crime = Crime()
+        val crimeId = activity?.intent?.getSerializableExtra(EXTRA_CRIME_ID) as UUID
+        crime = CrimeLab.get().getCrime(crimeId) ?: Crime()
     }
 
     override fun onCreateView(inflater: LayoutInflater,
@@ -52,13 +54,19 @@ class CrimeFragment : Fragment() {
                 // This one too
             }
         }
-        titleField.addTextChangedListener(titleWatcher)
+
+        titleField.apply {
+            setText(crime.title)
+            addTextChangedListener(titleWatcher)
+        }
 
         dateButton.apply {
             text = crime.date.toString()
             isEnabled = false
         }
+
         solvedCheckBox.apply {
+            isChecked = crime.isSolved
             setOnCheckedChangeListener { _, isChecked ->
                 crime.isSolved = isChecked
             }
