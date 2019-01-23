@@ -1,6 +1,8 @@
 package com.tutorial.bnr.ditzlern.criminalintent
 
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.text.Editable
@@ -14,6 +16,8 @@ import android.widget.EditText
 import java.util.*
 
 private const val ARG_CRIME_ID = "crime_id"
+private const val DIALOG_DATE = "DialogDate"
+private const val REQUEST_DATE = 0
 
 class CrimeFragment : Fragment() {
 
@@ -26,6 +30,19 @@ class CrimeFragment : Fragment() {
         super.onCreate(savedInstanceState)
         val crimeId = arguments?.getSerializable(ARG_CRIME_ID) as UUID
         crime = CrimeLab.get().getCrime(crimeId) ?: Crime()
+    }
+
+    override fun onActivityResult(requestCode: Int,
+                                  resultCode: Int,
+                                  data: Intent?) {
+        when {
+            resultCode != Activity.RESULT_OK -> return
+            requestCode == REQUEST_DATE && data != null -> {
+                val date = data.getSerializableExtra(DatePickerFragment.EXTRA_DATE) as Date
+                crime.date = date
+                dateButton.text = crime.date.toString()
+            }
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater,
@@ -63,7 +80,13 @@ class CrimeFragment : Fragment() {
 
         dateButton.apply {
             text = crime.date.toString()
-            isEnabled = false
+            setOnClickListener{
+                DatePickerFragment.newInstance(crime.date).apply {
+                    setTargetFragment(this@CrimeFragment, REQUEST_DATE)
+                    val fragmentManager = this@CrimeFragment.fragmentManager
+                    show(fragmentManager, DIALOG_DATE)
+                }
+            }
         }
 
         solvedCheckBox.apply {
