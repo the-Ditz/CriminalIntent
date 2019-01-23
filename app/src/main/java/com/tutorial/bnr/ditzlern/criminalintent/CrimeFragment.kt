@@ -11,8 +11,9 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
-import kotlinx.android.synthetic.main.fragment_crime.*
 import java.util.*
+
+private const val ARG_CRIME_ID = "crime_id"
 
 class CrimeFragment : Fragment() {
 
@@ -23,7 +24,7 @@ class CrimeFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val crimeId = activity?.intent?.getSerializableExtra(EXTRA_CRIME_ID) as UUID
+        val crimeId = arguments?.getSerializable(ARG_CRIME_ID) as UUID
         crime = CrimeLab.get().getCrime(crimeId) ?: Crime()
     }
 
@@ -74,4 +75,14 @@ class CrimeFragment : Fragment() {
 
         return view
     }
+
+    companion object {
+        fun newInstance(crimeId: UUID): CrimeFragment {
+            val args = Bundle().apply {
+                putSerializable(ARG_CRIME_ID, crimeId)
+            }
+            return CrimeFragment().apply {
+                arguments = args
+            }
+        } }
 }

@@ -41,7 +41,6 @@ class CrimeListFragment : Fragment() {
         val crimeLab = CrimeLab.get()
         val crimes = crimeLab.getCrimes()
 
-
         adapter?.let {
             it.crimes = crimes
             it.notifyDataSetChanged()
@@ -79,7 +78,7 @@ class CrimeListFragment : Fragment() {
         }
 
         override fun onClick(p0: View?) {
-            val intent = CrimeActivity.newIntent(requireContext(), crime.id)
+            val intent = CrimePagerActivity.newIntent(requireContext(), crime.id)
             startActivity(intent)
         }
     }
