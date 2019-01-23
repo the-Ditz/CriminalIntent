@@ -32,6 +32,12 @@ class CrimeFragment : Fragment() {
         crime = CrimeLab.get().getCrime(crimeId) ?: Crime()
     }
 
+    override fun onPause() {
+        super.onPause()
+
+        CrimeLab.get().updateCrime(crime)
+    }
+
     override fun onActivityResult(requestCode: Int,
                                   resultCode: Int,
                                   data: Intent?) {
