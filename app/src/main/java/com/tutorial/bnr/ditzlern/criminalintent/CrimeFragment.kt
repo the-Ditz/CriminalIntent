@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.text.Editable
 import android.text.TextWatcher
+import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,6 +26,7 @@ class CrimeFragment : Fragment() {
     private lateinit var titleField: EditText
     private lateinit var dateButton: Button
     private lateinit var solvedCheckBox: CheckBox
+    private lateinit var reportButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,6 +53,25 @@ class CrimeFragment : Fragment() {
         }
     }
 
+    private fun getCrimeReport(): String {
+        val solvedString = if (crime.isSolved) {
+            getString(R.string.crime_report_solved)
+        } else {
+            getString(R.string.crime_report_unsolved)
+        }
+
+        val dateFormat = "EEE, MMM dd"
+        val dateString = DateFormat.format(dateFormat, crime.date)
+        var suspect = if (crime.suspect.isEmpty()) {
+            getString(R.string.crime_report_no_suspect)
+        } else {
+            getString(R.string.crime_report_suspect, crime.suspect)
+        }
+
+        val  report = getString(R.string.crime_report, crime.title, dateString, solvedString, suspect)
+        return report
+    }
+
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -60,6 +81,7 @@ class CrimeFragment : Fragment() {
         titleField = view.findViewById(R.id.crime_title) as EditText
         dateButton = view.findViewById(R.id.crime_date) as Button
         solvedCheckBox = view.findViewById(R.id.crime_solved) as CheckBox
+        reportButton = view.findViewById(R.id.crime_report) as Button
 
         val titleWatcher = object: TextWatcher {
             override fun beforeTextChanged(sequence: CharSequence?,
@@ -102,8 +124,22 @@ class CrimeFragment : Fragment() {
             }
         }
 
+
+        reportButton.setOnClickListener {
+            Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_TEXT, getCrimeReport())
+                putExtra(Intent.EXTRA_SUBJECT, getString(R.string.crime_report_subject))
+            }.also { intent ->
+                val chooserIntent = Intent.createChooser(intent, getString(R.string.send_report))
+                startActivity(intent)
+                startActivity(chooserIntent)
+            }
+        }
         return view
     }
+
+
 
     companion object {
         fun newInstance(crimeId: UUID): CrimeFragment {
